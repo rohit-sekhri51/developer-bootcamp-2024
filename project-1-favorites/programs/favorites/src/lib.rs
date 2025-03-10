@@ -1,20 +1,20 @@
 use anchor_lang::prelude::*;
 // Our program's address!
 // This matches the key in the target/deploy directory
-declare_id!("FuaqGRQRdEpv1K57HjanFS2rAqQYb1aRUykfxrzmfYxQ");
+declare_id!("EuohYtdBKZdPMPHeb9zB2fcsvGJtiqJygcw4D2Ef64Lc");
 
 // Anchor programs always use 8 bits for the discriminator
 pub const ANCHOR_DISCRIMINATOR_SIZE: usize = 8;
 
 // Our Solana program! 
-#[program]
+#[program]      // Macro that handles serialise / deserailise
 pub mod favorites {
     use super::*;
 
     // Our instruction handler! It sets the user's favorite number and color
     pub fn set_favorites(context: Context<SetFavorites>, number: u64, color: String, hobbies: Vec<String>) -> Result<()> {
         let user_public_key = context.accounts.user.key();
-        msg!("Greetings from {}", context.program_id);
+        msg!("Greetings from  Rohit's Favorite Program {}", context.program_id);
         msg!(
             "User {user_public_key}'s favorite number is {number}, favorite color is: {color}",
         );
@@ -47,7 +47,8 @@ pub struct Favorites {
     #[max_len(5, 50)]
     pub hobbies: Vec<String>
 }
-// When people call the set_favorites instruction, they will need to provide the accounts that will be modifed. This keeps Solana fast!
+// When people call the set_favorites instruction, they will need to provide the accounts that will be modifed.
+// This keeps Solana fast! Parallel processing of transactions
 #[derive(Accounts)]
 pub struct SetFavorites<'info> {
     #[account(mut)]
@@ -57,8 +58,8 @@ pub struct SetFavorites<'info> {
         init_if_needed, 
         payer = user, 
         space = ANCHOR_DISCRIMINATOR_SIZE + Favorites::INIT_SPACE, 
-        seeds=[b"favorites", user.key().as_ref()],
-    bump)]
+        seeds=[b"favorites", user.key().as_ref()],      // Ensures that only the user can call his favorite account
+        bump)]
     pub favorites: Account<'info, Favorites>,
 
     pub system_program: Program<'info, System>,
