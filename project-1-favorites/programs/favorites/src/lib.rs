@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 // Our program's address!
 // This matches the key in the target/deploy directory
-declare_id!("ww9C83noARSQVBnqmCUmaVdbJjmiwcV9j2LkXYMoUCV");
+declare_id!("FuaqGRQRdEpv1K57HjanFS2rAqQYb1aRUykfxrzmfYxQ");
 
 // Anchor programs always use 8 bits for the discriminator
 pub const ANCHOR_DISCRIMINATOR_SIZE: usize = 8;
