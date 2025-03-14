@@ -13,7 +13,7 @@ export default function JournalFeature() {
 
   return publicKey ? (
     <div>
-      <AppHero title="My Solana Journal" subtitle={"Create your journal here!"}>
+      <AppHero title="Meri Solana Journal" subtitle={"Create your journal idhar!"}>
         <p className="mb-6">
           <ExplorerLink
             path={`account/${programId}`}

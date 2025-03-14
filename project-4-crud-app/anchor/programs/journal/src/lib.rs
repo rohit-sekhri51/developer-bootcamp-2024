@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
 // automatically when you build the project.
-declare_id!("94L2mJxVu6ZMmHaGsCHRQ65Kk2mea6aTnwWjSdfSsmBC");
+declare_id!("5YiRmtvpJ4Fh1MQHEcWZCceGwQFLjn9cNqNgum9BScHx");
 
 #[program]
 mod journal {
@@ -13,70 +13,72 @@ mod journal {
         title: String,
         message: String,
     ) -> Result<()> {
-        msg!("Journal Entry Created");
-        msg!("Title: {}", title);
-        msg!("Message: {}", message);
+        msg!("Geeting from Program ID: {:?}",ctx.accounts.system_program);
+        msg!("Journal Entry Created with Title: {}, Message: {}", title, message);
 
         let journal_entry = &mut ctx.accounts.journal_entry;
-        journal_entry.owner = ctx.accounts.owner.key();
+        journal_entry.owner = ctx.accounts.owner.key();     // *ctx.accounts.owner.key; de-reference
         journal_entry.title = title;
         journal_entry.message = message;
         Ok(())
+        
     }
 
     pub fn update_journal_entry(
         ctx: Context<UpdateEntry>,
-        title: String,
+        _title: String,
         message: String,
     ) -> Result<()> {
-        msg!("Journal Entry Updated");
-        msg!("Title: {}", title);
-        msg!("Message: {}", message);
+        msg!("Journal Entry with Title: {} is Updated with Message: {}", _title, message);
 
         let journal_entry = &mut ctx.accounts.journal_entry;
-        journal_entry.message = message;
+        journal_entry.message = message;    // title cant be updated coz its part of PDA.
 
         Ok(())
     }
 
-    pub fn delete_journal_entry(_ctx: Context<DeleteEntry>, title: String) -> Result<()> {
-        msg!("Journal entry titled {} deleted", title);
+    pub fn delete_journal_entry(_ctx: Context<DeleteEntry>, _title: String) -> Result<()> {
+        msg!("Journal entry titled {} deleted", _title);
+        //ctx.accounts.journal_entry.close(sol_destination)
         Ok(())
     }
 }
 
 #[account]
-pub struct JournalEntryState {
+#[derive(InitSpace)]
+pub struct JournalEntryState {      // #[derive(InitSpace)] not needed ?
     pub owner: Pubkey,
+    #[max_len(50)]
     pub title: String,
+    #[max_len(200)]
     pub message: String,
 }
 
 #[derive(Accounts)]
-#[instruction(title: String, message: String)]
-pub struct CreateEntry<'info> {
+#[instruction(title: String)]             // title comes from user input arg    // #[message: String]
+pub struct CreateEntry<'info> {     // instruction
     #[account(
         init,
-        seeds = [title.as_bytes(), owner.key().as_ref()], 
-        bump, 
+        seeds = [title.as_bytes(), owner.key().as_ref()], // PDA is similar to DB Primary Key
+        bump,                                             // if PDA just has owner, owner will be able to create single entry
         payer = owner, 
-        space = 8 + 32 + 4 + title.len() + 4 + message.len()
+        space = 8 + JournalEntryState::INIT_SPACE        // 8 (Discrimator) + 32(PubKey) + 4 + title.len() + 4 + message.len()
     )]
-    pub journal_entry: Account<'info, JournalEntryState>,
+    pub journal_entry: Account<'info, JournalEntryState>,   // journal_entry account for storing the JournalEntryState (owner,title,message)
     #[account(mut)]
-    pub owner: Signer<'info>,
+    pub owner: Signer<'info>,                               // Owner is payer, hence mut coz owner state is being changed
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-#[instruction(title: String, message: String)]
+#[instruction(title: String)]
 pub struct UpdateEntry<'info> {
     #[account(
         mut,
         seeds = [title.as_bytes(), owner.key().as_ref()], 
         bump, 
-        realloc = 8 + 32 + 4 + title.len() + 4 + message.len(),
-        realloc::payer = owner, 
+        realloc = 8 + JournalEntryState::INIT_SPACE,         // 32 + 4 + title.len() + 4 + message.len(),
+        realloc::payer = owner,                              // extra SOL
         realloc::zero = true, 
     )]
     pub journal_entry: Account<'info, JournalEntryState>,
@@ -92,7 +94,7 @@ pub struct DeleteEntry<'info> {
         mut, 
         seeds = [title.as_bytes(), owner.key().as_ref()], 
         bump, 
-        close= owner,
+        close= owner,       // so that only the owner can close this journal_entry account
     )]
     pub journal_entry: Account<'info, JournalEntryState>,
     #[account(mut)]

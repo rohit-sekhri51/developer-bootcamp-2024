@@ -66,7 +66,7 @@ export function JournalList() {
     return (
       <div className="flex justify-center alert alert-info">
         <span>
-          Program account not found. Make sure you have deployed the program and
+          Program account NOT found. Ensure you have deployed the program and
           are on the correct cluster.
         </span>
       </div>

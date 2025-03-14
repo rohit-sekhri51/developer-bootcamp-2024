@@ -46,12 +46,12 @@ export function useJournalProgram() {
   const createEntry = useMutation<string, Error, CreateEntryArgs>({
     mutationKey: ["journalEntry", "create", { cluster }],
     mutationFn: async ({ title, message, owner }) => {
-      const [journalEntryAddress] = await PublicKey.findProgramAddress(
+      const [journalEntryAddress] = await PublicKey.findProgramAddress(   // PDA not used in FE
         [Buffer.from(title), owner.toBuffer()],
         programId
       );
 
-      return program.methods.createJournalEntry(title, message).rpc();
+      return program.methods.createJournalEntry(title, message).rpc();    // args needed to derive the PDA on blockchain side
     },
     onSuccess: (signature) => {
       transactionToast(signature);
@@ -87,12 +87,12 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
   const updateEntry = useMutation<string, Error, CreateEntryArgs>({
     mutationKey: ["journalEntry", "update", { cluster }],
     mutationFn: async ({ title, message, owner }) => {
-      const [journalEntryAddress] = await PublicKey.findProgramAddress(
+      const [journalEntryAddress] = await PublicKey.findProgramAddress(   // PDA not used in the FE
         [Buffer.from(title), owner.toBuffer()],
         programId
       );
 
-      return program.methods.updateJournalEntry(title, message).rpc();
+      return program.methods.updateJournalEntry(title, message).rpc();    // args needed to derive the PDA on blockchain side
     },
     onSuccess: (signature) => {
       transactionToast(signature);
@@ -103,9 +103,9 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
     },
   });
 
-  const deleteEntry = useMutation({
+  const deleteEntry = useMutation({         // no need <tring, Error, CreateEntryArgs>
     mutationKey: ["journal", "deleteEntry", { cluster, account }],
-    mutationFn: (title: string) =>
+    mutationFn: (title: string) =>          // no need async coz title already pre-populated
       program.methods.deleteJournalEntry(title).rpc(),
     onSuccess: (tx) => {
       transactionToast(tx);
