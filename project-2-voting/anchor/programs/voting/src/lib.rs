@@ -78,7 +78,7 @@ pub struct InitializeCandidate<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    pub poll_account: Account<'info, PollAccount>,  // poll_account has no mut, seeds, bump - coz it INIT
+    pub poll_account: Account<'info, PollAccount>,  // poll_account has no mut, seeds, bump - coz its PDA is not needed
 
     #[account(
         init,
@@ -95,7 +95,7 @@ pub struct InitializeCandidate<'info> {
 #[derive(Accounts)]
 #[instruction(poll_id: u64, candidate: String)]
 pub struct Vote<'info> {
-    #[account(mut)]
+    #[account(mut)]         // Jacob in YT says #[account(mut)] is not needed, builds w/o it
     pub signer: Signer<'info>,
 
     #[account(
@@ -105,11 +105,13 @@ pub struct Vote<'info> {
     )]
     pub poll_account: Account<'info, PollAccount>,  // why poll_account looks different - coz Vote's poll account needs to change
 
-    #[account(
-        mut,
-        seeds = [poll_id.to_le_bytes().as_ref(), candidate.as_ref()],
+    #[account(  // if not mut candidate_votes += 1 will not work
+        mut,    // init, payer, space needed at the time of creating account
+        seeds = [poll_id.to_le_bytes().as_ref(), candidate.as_ref()],   
         bump)]
     pub candidate_account: Account<'info, CandidateAccount>,
+
+    // system_program not needed coz we are creating accounts
 }
 
 #[account]

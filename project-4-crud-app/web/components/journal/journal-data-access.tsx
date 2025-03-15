@@ -33,6 +33,9 @@ export function useJournalProgram() {
   );
   const program = getJournalProgram(provider);
 
+  console.log("Program Id is: " + programId + " Program is: " + program.account.journalEntryState.all());
+  console.log("connection is: " + connection.rpcEndpoint + " cluster is: " + cluster.name);
+
   const accounts = useQuery({
     queryKey: ["journal", "all", { cluster }],
     queryFn: () => program.account.journalEntryState.all(),
@@ -42,15 +45,13 @@ export function useJournalProgram() {
     queryKey: ["get-program-account", { cluster }],
     queryFn: () => connection.getParsedAccountInfo(programId),
   });
+  
+  console.log("accounts is: " + accounts.data + " getProgramAccount is: " + JSON.stringify(getProgramAccount.data?.value));
 
   const createEntry = useMutation<string, Error, CreateEntryArgs>({
     mutationKey: ["journalEntry", "create", { cluster }],
-    mutationFn: async ({ title, message, owner }) => {
-      const [journalEntryAddress] = await PublicKey.findProgramAddress(   // PDA not used in FE
-        [Buffer.from(title), owner.toBuffer()],
-        programId
-      );
-
+    mutationFn: ({ title, message, owner }) => {
+      console.log(owner + " Reached before createJournalEntry " + title);
       return program.methods.createJournalEntry(title, message).rpc();    // args needed to derive the PDA on blockchain side
     },
     onSuccess: (signature) => {
@@ -58,10 +59,11 @@ export function useJournalProgram() {
       accounts.refetch();
     },
     onError: (error) => {
-      toast.error(`Failed to create journal entry: ${error.message}`);
+      console.log("Errorrrrrr......");
+      toast.error(`Failed to CREATE journal entry: ${error.message}`);
     },
   });
-
+  console.log("End of FN " + createEntry);
   return {
     program,
     programId,
@@ -76,7 +78,7 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
   const transactionToast = useTransactionToast();
   const { program, accounts } = useJournalProgram();
   const programId = new PublicKey(
-    "8sddtWW1q7fwzspAfZj4zNpeQjpvmD3EeCCEfnc3JnuP"
+    "5YiRmtvpJ4Fh1MQHEcWZCceGwQFLjn9cNqNgum9BScHx"
   );
 
   const accountQuery = useQuery({

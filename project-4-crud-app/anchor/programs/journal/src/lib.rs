@@ -13,8 +13,8 @@ mod journal {
         title: String,
         message: String,
     ) -> Result<()> {
-        msg!("Geeting from Program ID: {:?}",ctx.accounts.system_program);
-        msg!("Journal Entry Created with Title: {}, Message: {}", title, message);
+        msg!("Geeting from Program ID: '{:?}'.",ctx.accounts.system_program.data);
+        msg!("Journal Entry Created with Title: '{}', Message: '{}'.", title, message);
 
         let journal_entry = &mut ctx.accounts.journal_entry;
         journal_entry.owner = ctx.accounts.owner.key();     // *ctx.accounts.owner.key; de-reference
@@ -29,7 +29,7 @@ mod journal {
         _title: String,
         message: String,
     ) -> Result<()> {
-        msg!("Journal Entry with Title: {} is Updated with Message: {}", _title, message);
+        msg!("Journal Entry with title: '{}' is Updated with Message: '{}'.", _title, message);
 
         let journal_entry = &mut ctx.accounts.journal_entry;
         journal_entry.message = message;    // title cant be updated coz its part of PDA.
@@ -38,7 +38,7 @@ mod journal {
     }
 
     pub fn delete_journal_entry(_ctx: Context<DeleteEntry>, _title: String) -> Result<()> {
-        msg!("Journal entry titled {} deleted", _title);
+        msg!("Journal entry titled '{}' deleted.", _title);
         //ctx.accounts.journal_entry.close(sol_destination)
         Ok(())
     }

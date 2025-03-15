@@ -111,7 +111,7 @@ describe('CREATE a SYSTEM account', () => {
           votingProgram.programId
     );
 
-    // 2 times votes for NaMo
+    // 2 times votes for NaMo, how to stop it, one wallet one vote
     await votingProgram.methods.vote(
       new anchor.BN(1),
         "Howdy Modi"
@@ -121,7 +121,7 @@ describe('CREATE a SYSTEM account', () => {
         "Howdy Modi"
     ).rpc();
 
-    // setInterval(                         // 3rd time fails. Why ?
+    // setTimeout(                         // 3rd time fails, 2 times passes, Why ?
     // await votingProgram.methods.vote(
     //   new anchor.BN(1),
     //     "Howdy Modi"
